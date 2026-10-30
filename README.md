@@ -1,110 +1,166 @@
 # FoodBuddy 🍱
 
-**A Java and MySQL-based food donation management system.**
+**A Modern Java Swing & MySQL Food Donation Management Desktop Application**
 
-FoodBuddy is a console-based application that connects food donors with recipients. It helps manage food donations, track requests, and prevent claimed food from appearing as available.
+FoodBuddy is an end-to-end food surplus management system designed to connect food donors with community recipients, shelters, and organizations. Featuring a modern, high-contrast dark dashboard and transactional workflow controls, FoodBuddy streamlines the donation lifecycle from registration to fulfillment while preventing claimed food from appearing as available.
 
-## Features
+---
 
-- Register and view donors
-- Add, view, search, update, and delete food donations
-- Register and view recipients
-- View available food donations
-- Submit food requests
-- Approve or reject food requests
-- Automatically mark approved donations as claimed
-- Store and manage data using MySQL
+## 🌟 Key Features
 
-## Technologies Used
+### 1. Modern Dark-Themed GUI (Java Swing)
+- **Interactive Dashboard**: Real-time statistical metrics derived dynamically from MySQL (Total Donors, Total Donations, Available Food, Registered Recipients, Pending Requests, Approved Requests) and recent activity feeds.
+- **Donation Management**: Searchable, filterable table showing food items, quantities, pickup locations, donor details, and live status badges (`AVAILABLE` vs `CLAIMED`). Includes dialogs for adding, updating, and safely deleting donations.
+- **Donor Directory**: Manage individual and organizational donors, view phone contacts, track total contributions, and search by name or contact number.
+- **Recipient Directory**: Register community recipients and distribution centers with linked request metrics.
+- **Food Request Workflow**: Complete request tracking with approval and rejection actions. An **ACID transactional update** ensures that approving a request atomically updates the request to `APPROVED` and marks the donation as `CLAIMED`.
+- **About Page**: Architectural overview, technology stack credits, and system specifications.
 
-- Java
-- MySQL
-- JDBC (Java Database Connectivity)
-- Object-Oriented Programming (OOP)
+### 2. Dual Compatibility: GUI & Console
+- **Swing Desktop GUI**: Default interface launched when running the application.
+- **Terminal CLI Mode**: Fully retained interactive console application accessible via the `--cli` flag.
 
-## Prerequisites
+---
 
-Install the following before running FoodBuddy:
+## 🛠️ Technologies Used
 
-- Java JDK
-- MySQL Server
-- MySQL Connector/J
+- **Java SE 21**: Object-Oriented Programming (OOP), encapsulation, and strong typing.
+- **Java Swing & AWT**: Responsive layouts (`BorderLayout`, `CardLayout`, `GridBagLayout`, `BoxLayout`), custom painted cards, badges, and smooth dark theme styling.
+- **MySQL 8.0**: Relational database storage with foreign-key constraints.
+- **JDBC (Java Database Connectivity)**: Secure, parameterized queries with `PreparedStatement` and row-locking transactions (`SELECT ... FOR UPDATE`).
+- **MySQL Connector/J**: High-performance database driver.
 
-## Project Setup
+---
 
-### 1. Clone the repository
+## 📁 Project Structure
 
-```bash
-git clone YOUR_GITHUB_REPOSITORY_URL
-cd FoodBuddy
+```text
+FoodBuddy/
+├── .gitignore
+├── db.properties                         # Local MySQL credentials (git-ignored)
+├── prompt.txt                            # Requirement specifications
+├── README.md                             # Documentation
+│
+├── database/
+│   └── foodbuddy.sql                     # Database schema definition
+│
+├── lib/
+│   └── mysql-connector-j-26.7.0.jar      # MySQL JDBC Driver
+│
+├── bin/                                  # Compiled .class bytecode
+│
+└── src/
+    └── com/
+        └── foodbuddy/
+            ├── Main.java                 # Main entrypoint (GUI by default / CLI with --cli)
+            ├── DBConnection.java         # JDBC Connection provider
+            │
+            ├── Donor.java                # Donor model
+            ├── FoodDonation.java         # Donation model
+            ├── Recipient.java            # Recipient model
+            ├── FoodRequest.java          # Food request model
+            │
+            ├── DonorDAO.java             # Donor Data Access Object
+            ├── DonationDAO.java          # Donation Data Access Object
+            ├── RecipientDAO.java         # Recipient Data Access Object
+            ├── FoodRequestDAO.java       # Food Request Data Access Object (Transactional)
+            ├── DashboardDAO.java         # Real-time statistics & activity feeds
+            │
+            └── ui/
+                ├── FoodBuddyApp.java     # Main JFrame desktop application
+                ├── UITheme.java          # Dark theme colors, fonts, badges & styled components
+                ├── SidebarPanel.java     # Collapsible navigation sidebar
+                ├── HeaderPanel.java      # Dynamic breadcrumb title & live clock header
+                ├── DashboardPanel.java   # Stat cards & recent activity dashboard
+                ├── DonationsPanel.java   # Food donation management panel & modal dialogs
+                ├── DonorsPanel.java      # Donor directory & registration panel
+                ├── RecipientsPanel.java  # Recipient directory panel
+                ├── FoodRequestsPanel.java# Request management & transactional approval
+                └── AboutPanel.java       # System specifications & credits
 ```
 
-Replace `YOUR_GITHUB_REPOSITORY_URL` with the URL of your GitHub repository.
+---
 
-### 2. Set up the database
+## 🚀 Setup & Execution Instructions
 
-Open MySQL Workbench or your MySQL command-line client and execute the SQL script in:
+### Prerequisites
+1. **Java JDK 17+ or 21+** installed (`java -version`, `javac -version`).
+2. **MySQL Server 8.0+** running locally.
+3. **MySQL Connector/J JAR** in the `lib/` directory.
 
-`database/foodbuddy.sql`
+### 1. Database Setup
+Execute the SQL script in MySQL Workbench or the MySQL command line:
+```sql
+SOURCE database/foodbuddy.sql;
+```
 
-This creates the `foodbuddy` database and the required tables.
-
-### 3. Configure database credentials
-
-Create a `db.properties` file in the project root:
-
+### 2. Configure Database Credentials
+Create or update `db.properties` in the project root:
 ```properties
 db.url=jdbc:mysql://localhost:3306/foodbuddy
 db.user=root
 db.password=YOUR_MYSQL_PASSWORD
 ```
+*(Note: `db.properties` is protected by `.gitignore` so your personal credentials are never exposed.)*
 
-Replace the username and password with your local MySQL credentials.
+### 3. Compile the Complete Project
+From the project root directory, run:
 
-**Do not commit `db.properties` to GitHub.**
-
-### 4. Add MySQL Connector/J
-
-Place the MySQL Connector/J JAR inside the `lib` folder.
-
-### 5. Compile the project
-
-Run this command from the project root:
-
+**On Windows (PowerShell / CMD):**
 ```powershell
-javac -cp "lib/*" -d bin src\com\foodbuddy\*.java
+javac -cp "lib/*" -d bin src\com\foodbuddy\*.java src\com\foodbuddy\ui\*.java
 ```
 
-### 6. Run FoodBuddy
+**On Linux / macOS:**
+```bash
+javac -cp "lib/*" -d bin src/com/foodbuddy/*.java src/com/foodbuddy/ui/*.java
+```
 
-On Windows, run:
+### 4. Run FoodBuddy
 
+#### A. Launch the Modern Java Swing Desktop Application (Default):
+**On Windows:**
 ```powershell
 java -cp "bin;lib/*" com.foodbuddy.Main
 ```
+*Alternatively, launch `FoodBuddyApp` directly:*
+```powershell
+java -cp "bin;lib/*" com.foodbuddy.ui.FoodBuddyApp
+```
 
-## Database Tables
+**On Linux / macOS:**
+```bash
+java -cp "bin:lib/*" com.foodbuddy.Main
+```
 
-| Table | Purpose |
-|---|---|
-| `donors` | Stores donor information |
-| `donations` | Stores food donation details and availability |
-| `recipients` | Stores recipient information |
-| `food_requests` | Tracks requests and their statuses |
+#### B. Launch the Interactive Terminal CLI:
+If you wish to use the original terminal interface:
+**On Windows:**
+```powershell
+java -cp "bin;lib/*" com.foodbuddy.Main --cli
+```
 
-## Learning Objectives
+**On Linux / macOS:**
+```bash
+java -cp "bin:lib/*" com.foodbuddy.Main --cli
+```
 
-This project demonstrates:
+---
 
-- Classes and objects
-- Encapsulation
-- Constructors and getters/setters
-- Database design and relationships
-- JDBC connectivity
-- CRUD operations
-- SQL queries and joins
-- Transaction handling for request approval
+## 🗄️ Database Tables & Relationships
 
-## Project Status
+| Table | Description | Relationships |
+|---|---|---|
+| `donors` | Stores donor names and phone numbers | Referenced by `donations.donor_id` |
+| `donations` | Stores food item name, quantity, pickup location, donor ID, and status (`AVAILABLE` / `CLAIMED`) | Foreign Key to `donors(donor_id)` |
+| `recipients` | Stores community recipient names and phone numbers | Referenced by `food_requests.recipient_id` |
+| `food_requests` | Tracks food distribution requests (`PENDING`, `APPROVED`, `REJECTED`) and timestamps | Foreign Keys to `recipients(recipient_id)` and `donations(donation_id)` |
 
-Developed as a college project to practise Java OOP concepts and DBMS integration.
+---
+
+## 💡 Business Logic & Transactional Safety
+
+- **Request Creation**: Only donations marked as `AVAILABLE` and with no active pending requests can be requested.
+- **Approval Workflow**: When an admin approves a request, a database transaction locks both rows (`SELECT ... FOR UPDATE`), transitions the request status to `APPROVED`, and changes the food donation status to `CLAIMED`. If any step fails, the entire transaction is rolled back.
+- **Rejection Workflow**: Rejecting a request marks the request as `REJECTED` while leaving the food donation `AVAILABLE` for other recipients.
+- **Data Integrity**: Foreign key constraints prevent deleting donors or recipients that have active linked records.

@@ -1,4 +1,3 @@
-
 package com.foodbuddy;
 
 public class Donor {
@@ -35,5 +34,10 @@ public class Donor {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    @Override
+    public String toString() {
+        return donorName + " (ID: " + donorId + ", Phone: " + phone + ")";
     }
 }

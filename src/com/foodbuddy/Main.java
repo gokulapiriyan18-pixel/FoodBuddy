@@ -1,11 +1,24 @@
-
 package com.foodbuddy;
 
+import com.foodbuddy.ui.FoodBuddyApp;
+
+import java.awt.GraphicsEnvironment;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
+        // If --cli flag is passed or the environment does not support GUI, run terminal console
+        if ((args.length > 0 && (args[0].equalsIgnoreCase("--cli") || args[0].equalsIgnoreCase("-c")))
+                || GraphicsEnvironment.isHeadless()) {
+            runConsoleApp(args);
+        } else {
+            // Launch Modern Java Swing GUI by default
+            FoodBuddyApp.main(args);
+        }
+    }
+
+    public static void runConsoleApp(String[] args) {
         Scanner sc = new Scanner(System.in);
 
         DonorDAO donorDAO = new DonorDAO();
@@ -16,7 +29,7 @@ public class Main {
         int choice;
 
         do {
-            System.out.println("\n===== FOODBUDDY =====");
+            System.out.println("\n===== FOODBUDDY (Console Mode) =====");
             System.out.println("1. Add Donor");
             System.out.println("2. View All Donors");
             System.out.println("3. Add Food Donation");
@@ -33,6 +46,9 @@ public class Main {
             System.out.println("14. Exit");
             System.out.print("Enter your choice: ");
 
+            if (!sc.hasNextInt()) {
+                break;
+            }
             choice = sc.nextInt();
             sc.nextLine();
 

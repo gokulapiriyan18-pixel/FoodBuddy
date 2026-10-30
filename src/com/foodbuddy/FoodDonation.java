@@ -1,4 +1,3 @@
-
 package com.foodbuddy;
 
 public class FoodDonation {
@@ -7,6 +6,8 @@ public class FoodDonation {
     private int quantity;
     private String location;
     private int donorId;
+    private String donationStatus = "AVAILABLE";
+    private String donorName = "";
 
     // Constructor for adding a donation
     public FoodDonation(String foodName, int quantity,
@@ -25,6 +26,29 @@ public class FoodDonation {
         this.quantity = quantity;
         this.location = location;
         this.donorId = donorId;
+    }
+
+    // Constructor with status
+    public FoodDonation(int donationId, String foodName, int quantity,
+                        String location, int donorId, String donationStatus) {
+        this.donationId = donationId;
+        this.foodName = foodName;
+        this.quantity = quantity;
+        this.location = location;
+        this.donorId = donorId;
+        this.donationStatus = donationStatus;
+    }
+
+    // Full constructor including donor name
+    public FoodDonation(int donationId, String foodName, int quantity,
+                        String location, int donorId, String donationStatus, String donorName) {
+        this.donationId = donationId;
+        this.foodName = foodName;
+        this.quantity = quantity;
+        this.location = location;
+        this.donorId = donorId;
+        this.donationStatus = donationStatus;
+        this.donorName = donorName;
     }
 
     public int getDonationId() {
@@ -47,6 +71,14 @@ public class FoodDonation {
         return donorId;
     }
 
+    public String getDonationStatus() {
+        return donationStatus;
+    }
+
+    public String getDonorName() {
+        return donorName;
+    }
+
     public void setFoodName(String foodName) {
         this.foodName = foodName;
     }
@@ -61,5 +93,18 @@ public class FoodDonation {
 
     public void setDonorId(int donorId) {
         this.donorId = donorId;
+    }
+
+    public void setDonationStatus(String donationStatus) {
+        this.donationStatus = donationStatus;
+    }
+
+    public void setDonorName(String donorName) {
+        this.donorName = donorName;
+    }
+
+    @Override
+    public String toString() {
+        return foodName + " (Qty: " + quantity + " at " + location + ")";
     }
 }

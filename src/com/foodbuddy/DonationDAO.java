@@ -1,12 +1,17 @@
-
 package com.foodbuddy;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DonationDAO {
+
+    // ==========================================
+    // Existing Console Application Methods
+    // ==========================================
 
     // 1. Add a food donation
     public void addDonation(FoodDonation fd) {
@@ -31,8 +36,6 @@ public class DonationDAO {
     }
 
     // 2. View all donations with donor names
-    
-    // View active donations with donor names
     public void viewDonations() {
         String sql = "SELECT d.donation_id, d.food_name, d.quantity, " +
                      "d.location, d.donor_id, dr.donor_name " +
@@ -154,8 +157,8 @@ public class DonationDAO {
                      "d.quantity, d.location, dr.donor_name " +
                      "FROM donations d " +
                      "JOIN donors dr ON d.donor_id = dr.donor_id " +
-                     "WHERE d.donation_status = 'AVAILABLE'\r\n" + //
-                                                  "AND NOT EXISTS (" +
+                     "WHERE d.donation_status = 'AVAILABLE'\r\n" +
+                     "AND NOT EXISTS (" +
                      "SELECT 1 FROM food_requests fr " +
                      "WHERE fr.donation_id = d.donation_id " +
                      "AND fr.request_status IN ('PENDING', 'APPROVED'))";
@@ -194,4 +197,198 @@ public class DonationDAO {
         }
     }
 
+    // ==========================================
+    // Java Swing & Programmatic Access Methods
+    // ==========================================
+
+    // Fetch all donations with donor names and status
+    public List<FoodDonation> getAllDonations() throws SQLException {
+        List<FoodDonation> list = new ArrayList<>();
+        String sql = "SELECT d.donation_id, d.food_name, d.quantity, " +
+                     "d.location, d.donor_id, d.donation_status, dr.donor_name " +
+                     "FROM donations d " +
+                     "JOIN donors dr ON d.donor_id = dr.donor_id " +
+                     "ORDER BY d.donation_id DESC";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(new FoodDonation(
+                    rs.getInt("donation_id"),
+                    rs.getString("food_name"),
+                    rs.getInt("quantity"),
+                    rs.getString("location"),
+                    rs.getInt("donor_id"),
+                    rs.getString("donation_status"),
+                    rs.getString("donor_name")
+                ));
+            }
+        }
+        return list;
+    }
+
+    // Fetch only available donations that can be requested
+    public List<FoodDonation> getAvailableDonations() throws SQLException {
+        List<FoodDonation> list = new ArrayList<>();
+        String sql = "SELECT d.donation_id, d.food_name, d.quantity, " +
+                     "d.location, d.donor_id, d.donation_status, dr.donor_name " +
+                     "FROM donations d " +
+                     "JOIN donors dr ON d.donor_id = dr.donor_id " +
+                     "WHERE d.donation_status = 'AVAILABLE' " +
+                     "ORDER BY d.donation_id DESC";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(new FoodDonation(
+                    rs.getInt("donation_id"),
+                    rs.getString("food_name"),
+                    rs.getInt("quantity"),
+                    rs.getString("location"),
+                    rs.getInt("donor_id"),
+                    rs.getString("donation_status"),
+                    rs.getString("donor_name")
+                ));
+            }
+        }
+        return list;
+    }
+
+    // Search and filter donations
+    public List<FoodDonation> searchDonations(String keyword, String statusFilter) throws SQLException {
+        List<FoodDonation> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT d.donation_id, d.food_name, d.quantity, " +
+            "d.location, d.donor_id, d.donation_status, dr.donor_name " +
+            "FROM donations d " +
+            "JOIN donors dr ON d.donor_id = dr.donor_id " +
+            "WHERE 1=1 "
+        );
+
+        boolean hasStatusFilter = statusFilter != null && !statusFilter.equalsIgnoreCase("ALL") && !statusFilter.trim().isEmpty();
+        if (hasStatusFilter) {
+            sql.append("AND d.donation_status = ? ");
+        }
+
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        if (hasKeyword) {
+            sql.append("AND (LOWER(d.food_name) LIKE ? OR LOWER(d.location) LIKE ? OR LOWER(dr.donor_name) LIKE ?) ");
+        }
+
+        sql.append("ORDER BY d.donation_id DESC");
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+
+            int paramIndex = 1;
+            if (hasStatusFilter) {
+                ps.setString(paramIndex++, statusFilter.toUpperCase().trim());
+            }
+            if (hasKeyword) {
+                String searchPattern = "%" + keyword.toLowerCase().trim() + "%";
+                ps.setString(paramIndex++, searchPattern);
+                ps.setString(paramIndex++, searchPattern);
+                ps.setString(paramIndex++, searchPattern);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new FoodDonation(
+                        rs.getInt("donation_id"),
+                        rs.getString("food_name"),
+                        rs.getInt("quantity"),
+                        rs.getString("location"),
+                        rs.getInt("donor_id"),
+                        rs.getString("donation_status"),
+                        rs.getString("donor_name")
+                    ));
+                }
+            }
+        }
+        return list;
+    }
+
+    // Add donation with programmatic boolean return
+    public boolean addDonationRecord(FoodDonation fd) throws SQLException {
+        String sql = "INSERT INTO donations " +
+                     "(food_name, quantity, location, donor_id, donation_status) " +
+                     "VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, fd.getFoodName());
+            ps.setInt(2, fd.getQuantity());
+            ps.setString(3, fd.getLocation());
+            ps.setInt(4, fd.getDonorId());
+            ps.setString(5, fd.getDonationStatus() != null ? fd.getDonationStatus() : "AVAILABLE");
+
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // Update donation with programmatic boolean return
+    public boolean updateDonationRecord(FoodDonation fd) throws SQLException {
+        String sql = "UPDATE donations SET food_name = ?, quantity = ?, " +
+                     "location = ?, donor_id = ?, donation_status = ? " +
+                     "WHERE donation_id = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, fd.getFoodName());
+            ps.setInt(2, fd.getQuantity());
+            ps.setString(3, fd.getLocation());
+            ps.setInt(4, fd.getDonorId());
+            ps.setString(5, fd.getDonationStatus());
+            ps.setInt(6, fd.getDonationId());
+
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // Delete donation with programmatic boolean return
+    public boolean deleteDonationRecord(int id) throws SQLException {
+        String sql = "DELETE FROM donations WHERE donation_id = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // Find single donation by ID
+    public FoodDonation getDonationById(int id) throws SQLException {
+        String sql = "SELECT d.donation_id, d.food_name, d.quantity, " +
+                     "d.location, d.donor_id, d.donation_status, dr.donor_name " +
+                     "FROM donations d " +
+                     "JOIN donors dr ON d.donor_id = dr.donor_id " +
+                     "WHERE d.donation_id = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new FoodDonation(
+                        rs.getInt("donation_id"),
+                        rs.getString("food_name"),
+                        rs.getInt("quantity"),
+                        rs.getString("location"),
+                        rs.getInt("donor_id"),
+                        rs.getString("donation_status"),
+                        rs.getString("donor_name")
+                    );
+                }
+            }
+        }
+        return null;
+    }
 }
