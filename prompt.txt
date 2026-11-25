@@ -1,0 +1,494 @@
+# TASK: Transform My Existing FoodBuddy Java Console Application into a Modern Java Swing Desktop Application
+
+Act as a senior Java developer and UI/UX designer.
+
+I have already developed a working Java + MySQL + JDBC console application called **FoodBuddy**. I now want to integrate a complete, modern Java Swing graphical user interface into the existing project.
+
+This is an enhancement of an existing working project, NOT a new project.
+
+Your primary responsibility is to preserve all existing backend functionality and build a beautiful, professional, fully functional desktop interface on top of it.
+
+---
+
+## 1. FIRST: Understand My Existing Project
+
+Before modifying anything:
+
+1. Inspect the complete project structure.
+2. Read every Java source file inside `src/com/foodbuddy/`.
+3. Understand the existing database connection implementation in `DBConnection.java`.
+4. Understand the model classes:
+   - `FoodDonation.java`
+   - `Donor.java`
+   - `Recipient.java`
+5. Understand the DAO classes:
+   - `DonationDAO.java`
+   - `DonorDAO.java`
+   - `RecipientDAO.java`
+   - `FoodRequestDAO.java`
+6. Inspect `database/foodbuddy.sql` to understand the exact database schema.
+7. Inspect `README.md` and `.gitignore`.
+
+Understand how the existing terminal application performs all operations before implementing the GUI.
+
+**IMPORTANT:**
+- Do not create a new database.
+- Do not change the existing database name (`foodbuddy`).
+- Do not unnecessarily modify existing table structures.
+- Do not remove existing functionality.
+- Do not replace the working JDBC implementation.
+- Do not hardcode database credentials.
+- Continue using the existing `db.properties` configuration.
+- Do not introduce Spring Boot, Maven, Gradle, Hibernate, JavaFX, React, or other frameworks.
+- Use Java Swing and the existing MySQL Connector/J library.
+
+Preserve the existing terminal application as a working application if reasonably possible.
+
+---
+
+## 2. DESIGN REQUIREMENTS — VISUAL APPEARANCE
+
+Create a visually impressive, modern food-tech desktop application.
+
+### Design theme
+
+Use a modern dark dashboard theme.
+
+Suggested color palette:
+
+- Main background: Deep navy (#101827)
+- Sidebar: Dark blue (#0B1220)
+- Cards: Slightly lighter navy (#192538)
+- Primary accent: Emerald green (#10B981)
+- Secondary accent: Cyan (#38BDF8)
+- Main text: White (#F8FAFC)
+- Secondary text: Muted gray (#94A3B8)
+- Error/danger: Soft red (#EF4444)
+
+Use these as design references, not rigid restrictions.
+
+### Overall design expectations
+
+- Professional and modern appearance.
+- Consistent spacing and alignment.
+- Rounded-looking panels and buttons where practical.
+- Clear typography and readable labels.
+- Attractive icons for navigation and actions.
+- Well-designed tables with alternating row colors.
+- Good contrast between backgrounds and text.
+- Consistent colors across all screens.
+- Responsive resizing and proper layout management.
+- No cluttered layouts.
+- No default-looking gray Swing interfaces.
+- No unnecessary animations that affect performance.
+
+Use reusable Swing components and a consistent styling system.
+
+Prefer Java Swing layouts such as BorderLayout, GridBagLayout, CardLayout, and BoxLayout rather than absolute positioning.
+
+Use custom painting or borders where needed to achieve a polished appearance.
+
+Avoid adding external UI dependencies unless absolutely necessary. Prefer a solution compatible with the existing project and its current build process.
+
+---
+
+## 3. APPLICATION LAYOUT
+
+Create a main application window with:
+
+- A left navigation sidebar.
+- A top header.
+- A central content area.
+- A consistent application theme.
+
+Suggested window title:
+
+**FoodBuddy — Food Donation Management**
+
+Suggested initial window size: approximately 1400 × 850 pixels, with sensible minimum dimensions.
+
+### Sidebar navigation
+
+Include the following sections:
+
+1. Dashboard
+2. Donations
+3. Donors
+4. Recipients
+5. Food Requests
+6. About FoodBuddy
+
+The currently selected section should have a clearly visible active state.
+
+Use CardLayout or another suitable navigation approach to switch between pages without opening multiple unnecessary windows.
+
+Include the FoodBuddy name and a suitable food-related icon or logo treatment at the top of the sidebar.
+
+---
+
+## 4. DASHBOARD PAGE
+
+Create an attractive dashboard as the default screen.
+
+It should contain:
+
+### Welcome section
+
+Display:
+
+"Welcome to FoodBuddy"
+
+Subtitle:
+
+"Connecting surplus food with people who need it."
+
+### Statistics cards
+
+Display database-derived statistics such as:
+
+- Total Donors
+- Total Donations
+- Available Donations
+- Registered Recipients
+- Pending Requests
+- Approved Requests
+
+IMPORTANT:
+- Calculate these values from the actual MySQL database.
+- Never use hardcoded demonstration numbers.
+- Refresh the statistics when records change.
+- If a query fails, show an appropriate error instead of inventing values.
+
+### Recent activity
+
+Show a compact section containing useful recent records, if the existing database and DAO functionality support them.
+
+Use readable tables or cards.
+
+---
+
+## 5. DONATIONS PAGE
+
+Create a complete donation management interface.
+
+Features:
+
+1. Display all donations in a professional JTable.
+2. Add Donation.
+3. View Donation Details.
+4. Update Donation.
+5. Delete Donation.
+6. Search donations.
+7. Filter donations by availability status, if supported by the existing schema.
+
+Display relevant columns:
+
+- Donation ID
+- Food Name
+- Quantity
+- Pickup Location
+- Donor ID
+- Donation Status
+
+### Add Donation dialog
+
+Create a polished form with:
+
+- Food Name
+- Quantity
+- Pickup Location
+- Donor selection
+
+Use a dropdown to select an existing donor when supported by the current implementation.
+
+Validate all fields before submitting.
+
+### Update and Delete
+
+Allow the user to select a donation from the table and perform the appropriate operation.
+
+Ask for confirmation before deleting a record.
+
+Refresh the table and dashboard statistics after successful changes.
+
+Do not permit claimed donations to be treated as available.
+
+---
+
+## 6. DONORS PAGE
+
+Create a donor management screen.
+
+Features:
+
+- Display all donors.
+- Register a new donor.
+- View donor details.
+- Update donor information if supported by existing backend functionality.
+- Delete donor records only when permitted by the database relationships.
+- Search donors by name or phone number.
+
+Display:
+
+- Donor ID
+- Donor Name
+- Phone Number
+
+Create attractive registration and editing dialogs.
+
+Ensure that foreign-key constraints are respected.
+
+---
+
+## 7. RECIPIENTS PAGE
+
+Create a recipient management screen.
+
+Features:
+
+- Display all registered recipients.
+- Register a new recipient.
+- View recipient details.
+- Update recipient details if supported.
+- Delete recipient records only when permitted by existing database relationships.
+- Search recipients.
+
+Display:
+
+- Recipient ID
+- Recipient Name
+- Phone Number
+
+Use a clean and consistent form design.
+
+---
+
+## 8. FOOD REQUESTS PAGE
+
+This is one of the most important sections.
+
+Create a professional request-management interface.
+
+Display:
+
+- Request ID
+- Recipient ID
+- Recipient Name, if retrievable through a JOIN
+- Donation ID
+- Food Name, if retrievable through a JOIN
+- Request Status
+- Request Date
+
+Provide:
+
+- View Requests
+- Approve Request
+- Reject Request
+- Search or filter requests by status
+
+### Request workflow
+
+Preserve the existing business logic:
+
+1. A recipient requests an available donation.
+2. The request is initially marked `PENDING`.
+3. An authorized user can approve or reject it through the application.
+4. On approval, the request becomes `APPROVED`.
+5. The corresponding donation becomes `CLAIMED`.
+6. On rejection, the request becomes `REJECTED`.
+7. A rejected request must not incorrectly mark the donation as claimed.
+
+Do not allow the same donation to be approved for multiple recipients.
+
+If two database updates are required for approval, use an appropriate JDBC transaction so that the request and donation statuses remain consistent.
+
+Do not silently change the database schema.
+
+---
+
+## 9. DATABASE INTEGRATION
+
+The Swing interface must communicate with the existing MySQL database through the existing JDBC architecture.
+
+Important requirements:
+
+- Reuse existing DAO classes wherever possible.
+- Do not put SQL queries directly inside button event handlers.
+- If existing DAO methods are insufficient, add the necessary methods to the appropriate DAO.
+- Use PreparedStatement for parameterized SQL.
+- Use try-with-resources for database resources.
+- Handle SQLException properly.
+- Do not expose database passwords in source code.
+- Reuse DBConnection.java.
+- Refresh database-backed tables after successful operations.
+
+The GUI must display actual database records, not temporary sample data.
+
+---
+
+## 10. USER EXPERIENCE AND VALIDATION
+
+Provide useful feedback for every operation.
+
+Examples:
+
+- "Donation added successfully."
+- "Donor registered successfully."
+- "Recipient registered successfully."
+- "Request approved successfully."
+- "Request rejected successfully."
+- "Please fill in all required fields."
+- "Please enter a valid quantity."
+- "Please select a record first."
+
+Use appropriate JOptionPane dialogs or custom styled dialogs.
+
+Additional requirements:
+
+- Validate empty fields.
+- Validate numerical quantity input.
+- Prevent accidental deletion.
+- Display clear database connection errors.
+- Provide a refresh option.
+- Provide a clean empty-state message when tables have no records.
+- Disable actions when they are not applicable.
+
+Do not show success messages if the database operation actually failed.
+
+---
+
+## 11. CODE ORGANIZATION
+
+Keep the existing package:
+
+`com.foodbuddy`
+
+Organize the new Swing implementation cleanly.
+
+A possible structure is:
+
+```text
+src/
+└── com/
+    └── foodbuddy/
+        ├── Main.java
+        ├── DBConnection.java
+        │
+        ├── FoodDonation.java
+        ├── Donor.java
+        ├── Recipient.java
+        │
+        ├── DonationDAO.java
+        ├── DonorDAO.java
+        ├── RecipientDAO.java
+        ├── FoodRequestDAO.java
+        │
+        └── ui/
+            ├── FoodBuddyApp.java
+            ├── DashboardPanel.java
+            ├── DonationsPanel.java
+            ├── DonorsPanel.java
+            ├── RecipientsPanel.java
+            ├── FoodRequestsPanel.java
+            ├── AboutPanel.java
+            ├── SidebarPanel.java
+            ├── HeaderPanel.java
+            └── UITheme.java
+```
+
+You may adjust this structure if the existing project requires a better arrangement.
+
+Do not duplicate existing model or DAO classes.
+
+Keep the application maintainable and beginner-friendly. Avoid unnecessary abstractions and excessive code.
+
+---
+
+## 12. PERFORMANCE AND STABILITY
+
+This is a desktop application, so responsiveness matters.
+
+- Create and update Swing components on the Event Dispatch Thread.
+- Use SwingWorker for database operations that may take time.
+- Do not freeze the entire UI while executing database queries.
+- Handle connection failures gracefully.
+- Avoid memory leaks and unnecessary database connections.
+- Dispose of dialogs properly.
+- Refresh the relevant page after successful operations.
+- Prevent duplicate button actions while an operation is running.
+
+---
+
+## 13. ABOUT PAGE
+
+Create a polished About FoodBuddy page containing:
+
+**FoodBuddy**
+
+"Reducing food waste. Connecting communities. Making surplus food meaningful."
+
+Include:
+
+- Project description.
+- Technologies used: Java, Swing, JDBC, MySQL.
+- Project purpose.
+- A simple credits section.
+
+Do not invent contributor names or institutional approvals.
+
+---
+
+## 14. TESTING REQUIREMENTS
+
+After implementation:
+
+1. Compile the complete project.
+2. Run the Swing application.
+3. Verify that the database connection works.
+4. Verify all navigation pages.
+5. Test adding a donor.
+6. Test adding a donation.
+7. Test updating and deleting a donation where supported.
+8. Test recipient registration.
+9. Test submitting a food request.
+10. Test approving a request.
+11. Test rejecting a request.
+12. Verify that an approved donation becomes `CLAIMED`.
+13. Verify that a rejected request leaves the donation available.
+14. Verify that dashboard statistics update correctly.
+15. Check that existing terminal functionality has not been unnecessarily broken.
+
+Do not claim that a feature is working unless you have actually tested it.
+
+If a feature cannot be implemented because an existing DAO method or database operation is missing, implement it safely or explain the limitation.
+
+---
+
+## 15. FINAL DELIVERABLES
+
+I expect you to:
+
+1. Integrate the complete Swing frontend into my existing FoodBuddy project.
+2. Preserve all existing backend logic and database structure.
+3. Create a modern, visually appealing dashboard.
+4. Implement all navigation pages.
+5. Connect every relevant interface action to the actual MySQL database.
+6. Keep the code organized and understandable.
+7. Update the README.md with the new Swing interface, project structure, setup, and execution instructions.
+8. Keep `db.properties` excluded from Git.
+9. Ensure the application can still be compiled and run using the existing project structure.
+
+### IMPORTANT FINAL INSTRUCTIONS
+
+- Do not merely generate UI mockups.
+- Do not create buttons that do nothing.
+- Do not use hardcoded sample records in place of database data.
+- Do not remove existing working functionality.
+- Do not unnecessarily redesign the database.
+- Do not introduce complicated frameworks.
+- Do not stop after creating the dashboard; implement all the requested pages.
+- Do not overwrite or delete files without inspecting their existing contents first.
+
+**First inspect the entire existing project, then plan the integration, then implement it, compile it, and test it.**
+
+The final result should look and feel like a polished, modern desktop food-tech management application suitable for a college project demonstration.

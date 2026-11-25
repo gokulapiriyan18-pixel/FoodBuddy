@@ -1,0 +1,13 @@
+# Local database credentials
+db.properties
+
+# Compiled Java files
+bin/
+*.class
+
+# VS Code workspace settings
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db
